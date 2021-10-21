@@ -7,7 +7,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Heeloooooo</Text>
+      <Text>Heeloooooo!!!!</Text>
       <StatusBar style="auto" />
     </View>
   );
