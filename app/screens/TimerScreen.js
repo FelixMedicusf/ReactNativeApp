@@ -18,8 +18,8 @@ function TimerScreen({navigation}) {
             <View style={styles.item}>
                 <Text>Timer id: {item.key}</Text>
                 <Text style={styles.title}>Timer time:{item.time}</Text>   
+                <Button title="Remove Timer" style={styles.buttonToRemoveTimer} onPress={()=>handleRemove(item.key)}/>
             </View>
-            <Button title="Remove Timer" style={styles.buttonToRemoveTimer} onPress={()=>handleRemove(item.key)}/>
             
         </View>
         );
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     item: {
         backgroundColor: '#f9c2ff',
         padding: 20,
-        marginVertical: 0,
+        marginVertical: 10,
         marginHorizontal: 16,
     },
     timerActivated:{
@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
     }, 
     title: {
         fontSize: 32,
+        padding:10
     },
 });
 
