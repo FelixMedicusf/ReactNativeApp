@@ -5,7 +5,7 @@ function WelcomeScreen({navigation}) {
     // Declare a new state variable, which we'll call "count" and set it to 0 
     // State variables are saved even when function is exited
     // useState() returns the current state and a function that updates it 
-    const [count, setCount] = useState(0);
+   
     return (
        <ImageBackground 
        style={styles.background}
@@ -29,7 +29,9 @@ const styles = StyleSheet.create({
         justifyContent:"center"
     },
     timerButton:{
-        color:"navy"
+        color:"navy", 
+        marginHorizontal:50,
+        paddingLeft:20
     },
     
 

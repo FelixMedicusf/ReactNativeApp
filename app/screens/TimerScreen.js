@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { createRef} from 'react';
 import { Image, StyleSheet, View, ScrollView, Text, TextInput, FlatList, Button} from 'react-native';
+import DraggableFlatList from 'react-native-draggable-flatlist'
 import colors from '../config/colors'
 
 function TimerScreen({navigation}) {
@@ -7,8 +8,6 @@ function TimerScreen({navigation}) {
     const [timerTime, setTimer] = React.useState(null)
 
     const [timerId, setTimerId] = React.useState(0)
-
-    const [timerActive, setActive] = React.useState(false)
     
     const [timers, addTimer] = React.useState([])
 
@@ -22,7 +21,7 @@ function TimerScreen({navigation}) {
             </View>
             
         </View>
-        );
+    );
    
     function handleRemove(key){
         const newList = timers.filter((item) => item.key !== key)
@@ -30,23 +29,22 @@ function TimerScreen({navigation}) {
     }
 
     function timeSetFunctions(){
-        setActive(true);
         setTimerId(timerId + 1)
         createTimer(); 
         setTimer("");
     }
 
     function createTimer(){
-        
         addTimer(timers => [...timers, {key: timerId, time: timerTime}]);
-        
         console.log(timers)
     }
 
+    function startTimers(){
+        console.log("Timers started!")
+        
+    }
 
-
-    return (
-           
+    return (      
         <View style={styles.container}>
             <TextInput
             style={styles.input}
@@ -57,8 +55,11 @@ function TimerScreen({navigation}) {
             value={timerTime}
             onSubmitEditing={timeSetFunctions}
             />
-            <View style={timerActive ? styles.timerActivated : styles.timerDeactivated}>
-                <Text style={{fontSize:20, marginBottom:10 }}>Your set timer</Text>
+            <View style={timers.length > 0  ? styles.timerActivated : styles.timerDeactivated}>
+                <Text style={{fontSize:20, marginBottom:10 }}>Active Timers</Text>
+                <Button title={"Start Timers"} 
+                onPress={startTimers}
+                style={{}}/>
             </View>
             <FlatList
             data={timers}
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
     },
     timerActivated:{
         display:"flex",
-        marginLeft:10
+        margin:15
         
     }, 
     timerDeactivated:{
