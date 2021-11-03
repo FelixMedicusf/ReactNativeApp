@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {ImageBackground, StyleSheet, View, Image, Text, Button, Alert} from 'react-native';
 
-function WelcomeScreen() {
+function WelcomeScreen({navigation}) {
     // Declare a new state variable, which we'll call "count" and set it to 0 
     // State variables are saved even when function is exited
     // useState() returns the current state and a function that updates it 
@@ -14,7 +14,7 @@ function WelcomeScreen() {
            <Button 
             style={styles.timerButton}
             onPress={
-                ()=>Alert.alert("Proceed to set timer!")
+                ()=>navigation.navigate('Timer')
             }
             title="Set Timer"
            />
