@@ -1,70 +1,112 @@
 import React, { createRef} from 'react';
-import { Image, StyleSheet, View, ScrollView, Text, TextInput, FlatList, Button} from 'react-native';
-import DraggableFlatList from 'react-native-draggable-flatlist'
+import { Image, StyleSheet, View, ScrollView, Text, TextInput, FlatList, Button, TouchableHighlight} from 'react-native';
 import colors from '../config/colors'
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 function TimerScreen({navigation}) {
 
-    const [timerTime, setTimer] = React.useState(null)
+    const [timer, setTimer] = React.useState(null)
 
-    const [timerId, setTimerId] = React.useState(0)
+    const [id, setId] = React.useState(0)
     
-    const [timers, addTimer] = React.useState([])
+    const [timers, editTimerList] = React.useState([])
 
+    const [timersRunning, setTimerRunning] = React.useState(false)
 
-    const renderItem = ({ item }) => (
-        <View>
-            <View style={styles.item}>
-                <Text>Timer id: {item.key}</Text>
-                <Text style={styles.title}>Timer time:{item.time}</Text>   
-                <Button title="Remove Timer" style={styles.buttonToRemoveTimer} onPress={()=>handleRemove(item.key)}/>
-            </View>
-            
-        </View>
+    const [selectedId, setSelectedId] = React.useState(null);
+
+    const Item = ({item, onPress, backgroundColor, color}) => (
+        
+        <TouchableOpacity onPress={onPress} style={[styles.item, backgroundColor]}>
+            <Text style={[color]}>Timer's Number: {item.key}</Text>
+            <Text style={[styles.title, color]}>Timer's Time: {item.time}</Text>
+            <Button title="Remove Timer" onPress={()=>handleRemove(item.key)}/>
+        </TouchableOpacity>
     );
+
+
+    const renderItem = ({ item }) => {
+
+        const backgroundColor = item.key === selectedId ? "#6e3b6e" : "#f9c2ff";
+        const color = item.key === selectedId ? 'white' : 'black'; 
+
+        return(
+         <Item
+            item={item}
+            onPress={()=>setSelectedId(item.key)}
+            backgroundColor={{backgroundColor}}
+            color={{color}}
+        />
+        );
+    }
    
     function handleRemove(key){
         const newList = timers.filter((item) => item.key !== key)
-        addTimer(newList)
+        editTimerList(newList)
     }
 
     function timeSetFunctions(){
-        setTimerId(timerId + 1)
         createTimer(); 
-        setTimer("");
+        setId(id+1)
+        setTimer(null);
     }
 
     function createTimer(){
-        addTimer(timers => [...timers, {key: timerId, time: timerTime}]);
-        console.log(timers)
+        editTimerList(timers.concat([timer]));
+        
+        console.log("Aktuelle Timer", timers)
     }
 
-    function startTimers(){
-        console.log("Timers started!")
-        
+    async function startTimers(){
+
+        setTimerRunning(!timersRunning)
+        var newList
+        var currentTimer
+        var i = 0
+        while (timers.length > 0){
+            currentTimer = timers[0]
+            console.log(currentTimer.time)
+            await Sleep(parseInt(currentTimer.time)*1000)
+            console.log("Timer " + currentTimer.key +" Done!")
+            newList = timers.filter(!currentTimer)
+            editTimerList(newList)
+            console.log("Updated timers:", timers)
+            // Prevents infinite Loop
+            i++
+            if (i == 5)break;
+        }
     }
+    function Sleep(milliseconds) {
+        return new Promise(resolve => setTimeout(resolve, milliseconds));
+       }
+
 
     return (      
         <View style={styles.container}>
             <TextInput
             style={styles.input}
-            onChangeText={setTimer}
+            onChangeText={(time)=>setTimer({key: id, time: time})}
             keyboardType="numeric"
-            
             placeholder="Set Timer in Seconds"
-            value={timerTime}
-            onSubmitEditing={timeSetFunctions}
+            value={timer == null ? "" : timer.time}
+            onSubmitEditing={()=>timeSetFunctions()}
             />
             <View style={timers.length > 0  ? styles.timerActivated : styles.timerDeactivated}>
-                <Text style={{fontSize:20, marginBottom:10 }}>Active Timers</Text>
-                <Button title={"Start Timers"} 
-                onPress={startTimers}
-                style={{}}/>
+                <Icon.Button
+                name={timersRunning ? "pause" : "play"}
+                backgroundColor="#3b5998"
+                //onPress={startTimers}
+                >
+                Start Timers
+                </Icon.Button>
+                <Text style={{fontSize:20, marginTop:10 }}>Active Timers:</Text>
             </View>
             <FlatList
             data={timers}
             renderItem={renderItem}
-            keyExtractor={item => item.time}
+            keyExtractor={item => item.key.toString()}
+            extraData={selectedId}
             />
         </View>
           

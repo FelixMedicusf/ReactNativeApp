@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {ImageBackground, StyleSheet, View, Image, Text, Button, Alert} from 'react-native';
+import {ImageBackground, StyleSheet, View, Image, Text, Button, Alert,} from 'react-native';
+
 
 function WelcomeScreen({navigation}) {
     // Declare a new state variable, which we'll call "count" and set it to 0 
