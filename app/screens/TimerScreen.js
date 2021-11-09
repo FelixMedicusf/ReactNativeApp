@@ -14,7 +14,9 @@ function TimerScreen({navigation}) {
 
     const [timersRunning, setTimerRunning] = React.useState(false)
 
-    const [selectedId, setSelectedId] = React.useState(null);
+    const [selectedId, setSelectedId] = React.useState(null)
+
+    const [timeRemaining, setTimeRemaining] = React.useState(null)
 
     const Item = ({item, onPress, backgroundColor, color}) => (
         
@@ -24,6 +26,8 @@ function TimerScreen({navigation}) {
             <Button title="Remove Timer" onPress={()=>handleRemove(item.key)}/>
         </TouchableOpacity>
     );
+
+    var startOrStopTimers = timersRunning ? "Stop Timers": "Start Timers"
 
 
     const renderItem = ({ item }) => {
@@ -40,42 +44,57 @@ function TimerScreen({navigation}) {
         />
         );
     }
+
+    function getTimerCountDown(){
+        setTimeout(()=>{
+            setTimeRemaining(this.getTimeRem()-1)}, 1000);
+    }
+
+    function getTimeRem() {
+        return this.state.timeRemaining;
+    }
    
     function handleRemove(key){
         const newList = timers.filter((item) => item.key !== key)
         editTimerList(newList)
     }
 
-    function timeSetFunctions(){
-        createTimer(); 
+
+    function addTimerToList(){
+        editTimerList(timers.concat([timer]));
         setId(id+1)
-        setTimer(null);
+        console.log("Added Timer: ", timer)
+        setTimer(null)
+        console.log("Current Array of all Timers", timers)
     }
 
-    function createTimer(){
-        editTimerList(timers.concat([timer]));
-        
-        console.log("Aktuelle Timer", timers)
+    function stopTimers(){
+        setTimerRunning(!timersRunning)
+        console.log("All Timers Stopped!")
     }
+
 
     async function startTimers(){
 
         setTimerRunning(!timersRunning)
-        var newList
-        var currentTimer
-        var i = 0
-        while (timers.length > 0){
-            currentTimer = timers[0]
-            console.log(currentTimer.time)
-            await Sleep(parseInt(currentTimer.time)*1000)
-            console.log("Timer " + currentTimer.key +" Done!")
-            newList = timers.filter(!currentTimer)
-            editTimerList(newList)
-            console.log("Updated timers:", timers)
-            // Prevents infinite Loop
-            i++
-            if (i == 5)break;
-        }
+        console.log("All Timers Started!")
+
+        console.log(timers[0])
+        // var newList
+        // var currentTimer
+        // var i = 0
+        // while (timers.length > 0){
+        //     currentTimer = timers[0]
+        //     console.log(currentTimer.time)
+        //     await Sleep(parseInt(currentTimer.time)*1000)
+        //     console.log("Timer " + currentTimer.key +" Done!")
+        //     newList = timers.filter(!currentTimer)
+        //     editTimerList(newList)
+        //     console.log("Updated timers:", timers)
+        //     // Prevents infinite Loop
+        //     i++
+        //     if (i == 5)break;
+        // }
     }
     function Sleep(milliseconds) {
         return new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -90,15 +109,15 @@ function TimerScreen({navigation}) {
             keyboardType="numeric"
             placeholder="Set Timer in Seconds"
             value={timer == null ? "" : timer.time}
-            onSubmitEditing={()=>timeSetFunctions()}
+            onSubmitEditing={()=>addTimerToList()}
             />
             <View style={timers.length > 0  ? styles.timerActivated : styles.timerDeactivated}>
                 <Icon.Button
                 name={timersRunning ? "pause" : "play"}
                 backgroundColor="#3b5998"
-                //onPress={startTimers}
+                onPress={timersRunning?stopTimers:startTimers}
                 >
-                Start Timers
+                {startOrStopTimers}
                 </Icon.Button>
                 <Text style={{fontSize:20, marginTop:10 }}>Active Timers:</Text>
             </View>
