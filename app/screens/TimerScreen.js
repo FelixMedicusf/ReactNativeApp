@@ -1,10 +1,14 @@
-import React, { createRef} from 'react';
-import { Image, StyleSheet, View, ScrollView, Text, TextInput, FlatList, Button, TouchableHighlight} from 'react-native';
-import colors from '../config/colors'
+import React from 'react';
+import {StyleSheet, View, Text, TextInput, FlatList, Button} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import colors from '../config/colors'
+
 
 function TimerScreen({navigation}) {
+
+    const [invokedTimers, setInvokedTimers] = React.useState([])
+
+    const [timeRemaining2, setTimeRemaining2] = React.useState(null)
 
     const [timer, setTimer] = React.useState(null)
 
@@ -18,20 +22,26 @@ function TimerScreen({navigation}) {
 
     const [timeRemaining, setTimeRemaining] = React.useState(null)
 
+    const startOrStopTimers = timersRunning ? "Stop Timers": "Start Timers"
+    
+
     const Item = ({item, onPress, backgroundColor, color}) => (
         
-        <TouchableOpacity onPress={onPress} style={[styles.item, backgroundColor]}>
+        <View style={[styles.item, backgroundColor]}>
             <Text style={[color]}>Timer's Number: {item.key}</Text>
             <Text style={[styles.title, color]}>Timer's Time: {item.time}</Text>
             <Button title="Remove Timer" onPress={()=>handleRemove(item.key)}/>
-        </TouchableOpacity>
+            <View style={{paddingTop: 15, width: 45, alignSelf:'center'}}>
+            <Icon.Button
+                name={item.isRunning ? "pause" : "play"}
+                backgroundColor="#3b5998"
+                onPress={item.isRunning ? ()=>stopTimer(item) : ()=>startTimer(item)}
+            />
+            </View>
+        </View>
     );
 
-    var startOrStopTimers = timersRunning ? "Stop Timers": "Start Timers"
-
-
     const renderItem = ({ item }) => {
-
         const backgroundColor = item.key === selectedId ? "#6e3b6e" : "#f9c2ff";
         const color = item.key === selectedId ? 'white' : 'black'; 
 
@@ -45,67 +55,69 @@ function TimerScreen({navigation}) {
         );
     }
 
-    function getTimerCountDown(){
-        setTimeout(()=>{
-            setTimeRemaining(this.getTimeRem()-1)}, 1000);
-    }
-
-    function getTimeRem() {
-        return this.state.timeRemaining;
-    }
-   
     function handleRemove(key){
         const newList = timers.filter((item) => item.key !== key)
         editTimerList(newList)
     }
 
-
     function addTimerToList(){
         editTimerList(timers.concat([timer]));
         setId(id+1)
-        console.log("Added Timer: ", timer)
         setTimer(null)
-        console.log("Current Array of all Timers", timers)
+        console.log("Current Array of all Timers: ", timers)
     }
 
+    function startTimer(timer){
+        let timerToUpate = timer
+        let index = timers.findIndex(x=>x===timerToUpate)
+        timers.forEach(element => {
+            element.isRunning=false
+        });
+        timers[index].isRunning = true
+        editTimerList(timers)
+        countDown(timer)
+    }
+    
+    function countDown(timerObject){
+        for(i = timeInSeconds; i > 0; i++){
+            setIntervall(()=>setTimeRemaining2(timerObject.remainingTime-1), 1000)    
+        }    
+        setInvokedTimers(...invokedTimers, timerObject)
+    }
+    
+    function stopTimer(timerKey){
+        let timerToUpate = timers.find(x=>x.key===timerKey)
+        let index = timers.findIndex(x=>x===timerToUpate)
+        timers[index].isRunning = false
+        
+        editTimerList(timers)
+    }
+
+    
+    const createClock2 = setIntervall(countDown, 1000)
+    
+    function startTimers(){
+        
+    }
     function stopTimers(){
         setTimerRunning(!timersRunning)
         console.log("All Timers Stopped!")
     }
 
-
-    async function startTimers(){
-
-        setTimerRunning(!timersRunning)
-        console.log("All Timers Started!")
-
-        console.log(timers[0])
-        // var newList
-        // var currentTimer
-        // var i = 0
-        // while (timers.length > 0){
-        //     currentTimer = timers[0]
-        //     console.log(currentTimer.time)
-        //     await Sleep(parseInt(currentTimer.time)*1000)
-        //     console.log("Timer " + currentTimer.key +" Done!")
-        //     newList = timers.filter(!currentTimer)
-        //     editTimerList(newList)
-        //     console.log("Updated timers:", timers)
-        //     // Prevents infinite Loop
-        //     i++
-        //     if (i == 5)break;
-        // }
-    }
-    function Sleep(milliseconds) {
-        return new Promise(resolve => setTimeout(resolve, milliseconds));
-       }
+    function displayTime() {
+        let date = new Date();
+        let time = date.toLocaleTimeString();
+        setTimeRemaining(time)
+     }
+     
+    const createClock = setInterval(displayTime, 1000);
 
 
     return (      
         <View style={styles.container}>
             <TextInput
             style={styles.input}
-            onChangeText={(time)=>setTimer({key: id, time: time})}
+            onChangeText={(time)=>setTimer({key: id, time: time, remainingTime: time, isRunning: false})}
             keyboardType="numeric"
             placeholder="Set Timer in Seconds"
             value={timer == null ? "" : timer.time}
@@ -125,8 +137,9 @@ function TimerScreen({navigation}) {
             data={timers}
             renderItem={renderItem}
             keyExtractor={item => item.key.toString()}
-            extraData={selectedId}
+            //extraData={selectedId}
             />
+            <View><Text>{timeRemaining}</Text></View>
         </View>
           
     );
